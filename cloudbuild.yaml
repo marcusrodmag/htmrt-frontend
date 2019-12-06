@@ -49,8 +49,8 @@ steps:
   - '-f'
   - 'htmrt/kubernetes/htmrt-frontend.yaml'
   env:
-  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-f'
-  - 'CLOUDSDK_CONTAINER_CLUSTER=htmrt-dev'
+  - 'CLOUDSDK_COMPUTE_ZONE=${_COMPUTE_ZONE}'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=htmrt-${_ENV}'
 
 # Obtem chave ssh privada para autenticação no github
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -90,10 +90,10 @@ steps:
     path: /root/.ssh
 
 substitutions:
-  _CLUSTER_EXTERNAL_IP_PRD: 35.238.105.178
-  _CLUSTER_EXTERNAL_IP_DEV: 104.198.104.13
-  _POD_ENV_NAME_DEV: DEV 
-  _POD_ENV_NAME_PRD: PRD 
+  _CLUSTER_EXTERNAL_IP: 127.0.0.1
+  _ENV: DEV
+  _POD_ENV_NAME: Development
+  _COMPUTE_ZONE: us-west1-c
 
 
 # [END cloudbuild]
