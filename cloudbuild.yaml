@@ -1,6 +1,6 @@
 # [START cloudbuild]
 steps:
-# This step builds the container image.
+# Constroi a imagem Docker
 - name: 'gcr.io/cloud-builders/docker'
   id: Docker Build
   args:
@@ -16,6 +16,7 @@ steps:
   - 'push'
   - 'gcr.io/$PROJECT_ID/htmrt-frontend:$SHORT_SHA'
 
+# Clona o repositório de configuração do ambiente (cluster)
 - name: 'gcr.io/cloud-builders/git'
   id: Clone Environment Project
   entrypoint: /bin/sh
@@ -63,7 +64,7 @@ steps:
   - name: 'ssh'
     path: /root/.ssh
 
-  # Commit e PUSH para GIT
+# Commit e PUSH para GIT
 - name: 'gcr.io/cloud-builders/git'
   id: Commit do GIT
   entrypoint: /bin/sh
