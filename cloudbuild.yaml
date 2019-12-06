@@ -36,7 +36,7 @@ steps:
   - |
     # if [ "${_POD_ENV_NAME_DEV}" == "PRD" ]; export ENVNAME=Production; else export ENVNAME=Development; fi| \
     # echo "ENV: $ENVNAME"
-    export ENVNAME=Production
+    # export ENVNAME=Production
     sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
     sed "s/GOOGLE_EXT_IP/${_CLUSTER_EXTERNAL_IP}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
     # sed "s/GOOGLE_EXT_IP/$$ENVNAME/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
