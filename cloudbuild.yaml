@@ -34,8 +34,6 @@ steps:
   args:
   - '-c'
   - |
-    export ENVNAME=Production| \
-    echo "VAR: \$ENVNAME"| \
     sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
     sed "s/GOOGLE_EXT_IP/${_CLUSTER_EXTERNAL_IP}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
     sed "s/COMMIT_SHA/${SHORT_SHA}/g" > htmrt/kubernetes/htmrt-frontend.yaml && \
@@ -92,7 +90,6 @@ steps:
 substitutions:
   _CLUSTER_EXTERNAL_IP: 127.0.0.1
   _ENV: DEV
-  _POD_ENV_NAME: Development
   _COMPUTE_ZONE: us-west1-c
 
 # [END cloudbuild]
