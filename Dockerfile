@@ -7,4 +7,4 @@ RUN mkdir /usr/share/nginx/static
 COPY static /usr/share/nginx/static
 COPY frontend.conf /etc/nginx/conf.d/
 
-CMD ["/usr/sbin/nginx", "-s", "quit"]
+#CMD ["/usr/sbin/nginx", "-s", "quit"]
