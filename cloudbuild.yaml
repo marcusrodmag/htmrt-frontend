@@ -1,0 +1,97 @@
+# [START cloudbuild]
+steps:
+
+#   # This step runs the unit tests on the app
+# - name: 'python:3.7-slim'
+#   id: Test APP
+#   entrypoint: /bin/sh
+#   args:
+#   - -c
+#   - 'pip install --trusted-host pypi.python.org -r src/requirements.txt && python src/test.py -v'
+
+# This step builds the container image.
+- name: 'gcr.io/cloud-builders/docker'
+  id: Docker Build
+  args:
+  - 'build'
+  - '-t'
+  - 'gcr.io/$PROJECT_ID/htmrt-frontend:$SHORT_SHA'
+  - '.'
+
+# This step pushes the image to Container Registry
+# The PROJECT_ID and SHORT_SHA variables are automatically
+# replaced by Cloud Build.
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push Docker Image
+  args:
+  - 'push'
+  - 'gcr.io/$PROJECT_ID/htmrt-frontend:$SHORT_SHA'
+
+- name: 'gcr.io/cloud-builders/git'
+  id: Clone Environment Project
+  entrypoint: /bin/sh
+  args:
+    - '-c'
+    - |
+      git clone https://github.com/marcusrodmag/htmrt.git && \
+      cd htmrt
+      git checkout init
+
+# This step generates the new manifest for Backend
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Generate k8s manifest
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+     sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
+     sed "s/COMMIT_SHA/${SHORT_SHA}/g" > htmrt/kubernetes/htmrt-frontend.yaml && \
+     cat htmrt/kubernetes/htmrt-frontend.yaml
+
+# This step deploys the new version of our container image
+- name: 'gcr.io/cloud-builders/kubectl'
+  id: Deploy to kubernetes
+  args:
+  - 'apply'
+  - '-f'
+  - 'htmrt/kubernetes/htmrt-frontend.yaml'
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-f'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=htmrt-dev'
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Decript MKS SSH key for github
+  args:
+  - kms
+  - decrypt
+  - --ciphertext-file=htmrt/key/id_rsa.enc
+  - --plaintext-file=/root/.ssh/id_rsa
+  - --location=global
+  - --keyring=0001-keyring
+  - --key=0001-rtmrt-key
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+- name: 'gcr.io/cloud-builders/git'
+  id: Commit do GIT
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    echo "Persist k8s Manifest generated" && \
+    ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts && \
+    cd htmrt && \
+    chmod 400 /root/.ssh/id_rsa && \
+    git config --global user.name gitops && \
+    git config --global user.email gitops@gmail.com && \
+    git remote set-url origin git@github.com:marcusrodmag/htmrt.git && \
+    git remote -v && \
+    git add . && \
+    git commit -m "Manifest from commit $COMMIT_SHA" && \
+    git push origin init
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+# [END cloudbuild]
