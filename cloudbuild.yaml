@@ -24,7 +24,7 @@ steps:
     - |
       git clone https://github.com/marcusrodmag/htmrt.git && \
       cd htmrt
-      git checkout init
+      git checkout $BRANCH_NAME
 
 # Gera um novo manifesto para definição do cluster usando nova imagem
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -80,7 +80,7 @@ steps:
     git remote -v && \
     git add . && \
     git commit -m "Manifest from commit $COMMIT_SHA" && \
-    git push origin init
+    git push origin $BRANCH_NAME
   volumes:
   - name: 'ssh'
     path: /root/.ssh
