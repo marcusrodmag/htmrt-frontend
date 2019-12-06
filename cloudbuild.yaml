@@ -35,7 +35,7 @@ steps:
   - '-c'
   - |
     export ENVNAME=Production| \
-    echo "VAR: $$ENVNAME"
+    echo "VAR: \$ENVNAME"| \
     sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
     sed "s/GOOGLE_EXT_IP/${_CLUSTER_EXTERNAL_IP}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
     sed "s/COMMIT_SHA/${SHORT_SHA}/g" > htmrt/kubernetes/htmrt-frontend.yaml && \
