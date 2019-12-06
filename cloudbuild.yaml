@@ -34,12 +34,13 @@ steps:
   args:
   - '-c'
   - |
-     sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
-     sed "s/GOOGLE_EXT_IP/${_CLUSTER_EXTERNAL_IP}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
-     sed "s/COMMIT_SHA/${SHORT_SHA}/g" > htmrt/kubernetes/htmrt-frontend.yaml && \
-     cat htmrt/kubernetes/htmrt-frontend.yaml
-  substitutions:
-    _CLUSTER_EXTERNAL_IP: 35.238.105.178 # default value
+    if [ "${_POD_ENV_NAME_DEV}" == "PRD" ]; export ENVNAME=Production; else export ENVNAME=Development; fi| \
+    echo "ENV: $ENVNAME"
+    sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
+    sed "s/GOOGLE_EXT_IP/${_CLUSTER_EXTERNAL_IP}/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
+    sed "s/GOOGLE_EXT_IP/$ENVNAME/g" kubernetes-manifests/htmrt-frontend.yaml.template| \
+    sed "s/COMMIT_SHA/${SHORT_SHA}/g" > htmrt/kubernetes/htmrt-frontend.yaml && \
+    cat htmrt/kubernetes/htmrt-frontend.yaml
 
 # Aplica o manifesto gerado
 - name: 'gcr.io/cloud-builders/kubectl'
@@ -88,5 +89,12 @@ steps:
   volumes:
   - name: 'ssh'
     path: /root/.ssh
+
+substitutions:
+  _CLUSTER_EXTERNAL_IP_PRD: 35.238.105.178
+  _CLUSTER_EXTERNAL_IP_DEV: 104.198.104.13
+  _POD_ENV_NAME_DEV: DEV 
+  _POD_ENV_NAME_PRD: PRD 
+
 
 # [END cloudbuild]
