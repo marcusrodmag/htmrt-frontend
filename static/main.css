@@ -4,3 +4,9 @@ body {
     font: Verdana;
 }
 
+div {
+    height: 300px;
+    width: 50%;
+    padding: 20px;
+}
+
