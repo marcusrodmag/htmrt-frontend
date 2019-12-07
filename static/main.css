@@ -10,3 +10,10 @@ div {
     padding: 20px;
 }
 
+.center {
+    margin: auto;
+    width: 50%;
+    border: 3px solid rgb(223, 226, 223);
+    padding: 10px;
+}
+
